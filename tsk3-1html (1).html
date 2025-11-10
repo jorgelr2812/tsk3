@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Car Registration</title>
+  <link rel="stylesheet" href="tsk5-1css (1).css">
+</head>
+<body onload="mostrarhora();">
+  <h1>Car Registration</h1>
+
+  <form id="formCoche">
+    Brand: <input type="text" id="marca"><br>
+    Year: <input type="number" id="anio"><br>
+    Category:
+    <select id="categoria">
+      <option value="Sedan">Sedan</option>
+      <option value="SUV">SUV</option>
+      <option value="Compact">Compact</option>
+      <option value="Coupe">Coupe</option>
+    </select><br>
+
+    Fuel Type:<br>
+    <label><input type="radio" name="combustible" value="Gasoline"> Gasoline</label>
+    <label><input type="radio" name="combustible" value="Diesel"> Diesel</label><br><br>
+
+    <label><input type="checkbox" id="itv"> ITV</label><br><br>
+
+    <button type="button" id="btnAñadir">Add Car</button>
+    <button type="button" id="btnMostrar">Show Cars</button>
+    <button type="button" id="btnEliminar">Delete Car</button>
+    <button type="button" id="btnFinalizar">Finish</button>
+
+    <p>Counter: <span id="contador">0</span></p>
+  </form>
+  <div id="reloj"></div>
+  <script src="tsk3-1js (1).js"></script>
+</body>
+</html>
+
