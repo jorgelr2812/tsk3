@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Car Registration</title>
@@ -7,7 +7,6 @@
 </head>
 <body onload="mostrarhora();">
   <h1>Car Registration</h1>
-<!-- Form for car details -->
   <form id="formCoche">
     Brand: <input type="text" id="marca"><br>
     Year: <input type="number" id="anio"><br>
@@ -18,25 +17,35 @@
       <option value="Compact">Compact</option>
       <option value="Coupe">Coupe</option>
     </select><br>
-
     Fuel Type:<br>
     <label><input type="radio" name="combustible" value="Gasoline"> Gasoline</label>
     <label><input type="radio" name="combustible" value="Diesel"> Diesel</label><br><br>
-
-    <label><input type="checkbox" id="itv"> ITV</label><br><br>
-
-    <button type="button" id="btnAñadir">Add Car</button>
-    <button type="button" id="btnMostrar">Show Cars</button>
-    <button type="button" id="btnEliminar">Delete Car</button>
-    <button type="button" id="btnFinalizar">Finish</button>
-
+    <label><input type="checkbox" id="itv"> ITV Inspection</label><br><br>
+    <div class="button-group">
+      <button type="button" id="btnAñadir">Add Car</button>
+      <button type="button" id="btnMostrar">Show Cars</button>
+      <button type="button" id="btnEliminar">Delete Car</button>
+      <button type="button" id="btnFinalizar">Finish</button>
+    </div>
     <p>Counter: <span id="contador">0</span></p>
   </form>
   <div id="reloj"></div>
-  <input type="button" id="parar" value="Para/Continua">
-  <input type="button" id="prueba" value="Prueba Local Storage">
-
-    <script src="tsk3-1js (1).js"></script>
-  </body>
+  <div class="button-group">
+    <input type="button" id="parar" value="Stop/Continue">
+    <input type="button" id="prueba" value="Save to Storage">
+  </div>
+  <label for="colorReloj">Clock Color:</label>
+  <select id="colorReloj">
+    <option value="">-- Select Color --</option>
+    <option value="red">Red</option>
+    <option value="blue">Blue</option>
+    <option value="green">Green</option>
+    <option value="orange">Orange</option>
+    <option value="purple">Purple</option>
+    <option value="black">Black</option>
+  </select>
+  <div id="estadoReloj" style="margin-top: 10px; font-weight: bold; color: green;"></div>
+  <script src="tsk3-1js (1).js"></script>
+</body>
 </html>
 

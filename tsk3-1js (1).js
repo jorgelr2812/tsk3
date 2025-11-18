@@ -1,5 +1,7 @@
+// Array principal para almacenar los coches
 let coches = [];
 
+// Captura y valida los datos del formulario
 function capturarDatos() {
   let marca = document.getElementById("marca").value.trim();
   let anio = Number(document.getElementById("anio").value);
@@ -8,36 +10,27 @@ function capturarDatos() {
   let radios = document.getElementsByName("combustible");
   let combustible = null;
   for (let i = 0; i < radios.length; i++) {
-  if (radios[i].checked) {
-    combustible = radios[i];
-    break;
+    if (radios[i].checked) {
+      combustible = radios[i];
+      break;
+    }
   }
-}
-
   if (!marca || isNaN(anio) || !combustible) {
     alert("Please fill in all required fields.");
     return null;
   }
-
   if (marca.length > 30) {
     alert("The brand cannot have more than 30 characters.");
     return null;
   }
-
   if (anio < 1900 || anio > 2025) {
     alert("The year must be between 1900 and 2025.");
     return null;
   }
-
-  return {
-    marca: marca,
-    anio: anio,
-    categoria: categoria,
-    combustible: combustible.value,
-    itv: itv
-  };
+  return { marca, anio, categoria, combustible: combustible.value, itv };
 }
 
+// Añade un coche al array si la marca no está repetida
 function añadirCoche(coche) {
   for (let c of coches) {
     if (c.marca === coche.marca) {
@@ -51,35 +44,33 @@ function añadirCoche(coche) {
   document.getElementById("formCoche").reset();
 }
 
+// Elimina un coche del array según la marca introducida
 function eliminarCoche() {
   if (coches.length === 0) {
     alert("No cars to delete.");
     return;
   }
-
   let marcaEliminar = prompt("Enter the brand of the car to delete:");
   if (!marcaEliminar) return;
-
   let nuevoCoches = [];
-let encontrado = false;
-
-for (let i = 0; i < coches.length; i++) {
-  if (coches[i].marca.toLowerCase() !== marcaEliminar.toLowerCase()) {
-    nuevoCoches.push(coches[i]);
+  let encontrado = false;
+  for (let i = 0; i < coches.length; i++) {
+    if (coches[i].marca.toLowerCase() !== marcaEliminar.toLowerCase()) {
+      nuevoCoches.push(coches[i]);
+    } else {
+      encontrado = true;
+    }
+  }
+  if (!encontrado) {
+    alert("No car found with that brand.");
   } else {
-    encontrado = true;
+    coches = nuevoCoches;
+    document.getElementById("contador").textContent = coches.length;
+    alert("Car deleted successfully.");
   }
 }
 
-if (!encontrado) {
-  alert("No car found with that brand.");
-} else {
-  coches = nuevoCoches;
-  document.getElementById("contador").textContent = coches.length;
-  alert("Car deleted successfully.");
-}
-}
-
+// Muestra todos los coches registrados en un alert
 function mostrarCoches() {
   if (coches.length === 0) {
     alert("There are no cars registered.");
@@ -87,13 +78,13 @@ function mostrarCoches() {
   }
   let texto = "Registered cars:\n\n";
   for (let i = 0; i < coches.length; i++) {
-  let c = coches[i];
-  texto += (i + 1) + ". " + c.marca + " (" + c.anio + ") - " + c.categoria + ", " + c.combustible + " - ITV: " + (c.itv ? "Yes" : "No") + "\n";
-}
-
+    let c = coches[i];
+    texto += (i + 1) + ". " + c.marca + " (" + c.anio + ") - " + c.categoria + ", " + c.combustible + " - ITV: " + (c.itv ? "Yes" : "No") + "\n";
+  }
   alert(texto);
 }
 
+// Muestra la lista final de coches ordenados por año
 function finalizar() {
   if (coches.length === 0) {
     alert("There are no cars to show.");
@@ -111,192 +102,212 @@ document.getElementById("btnAñadir").onclick = () => {
   const coche = capturarDatos();
   if (coche) añadirCoche(coche);
 };
-
 document.getElementById("btnMostrar").onclick = mostrarCoches;
 document.getElementById("btnEliminar").onclick = eliminarCoche;
 document.getElementById("btnFinalizar").onclick = finalizar;
-function mostrarHora(){
+
+// Muestra la hora actual en el elemento del reloj
+function mostrarHora() {
   const ahora = new Date();
   const hora = ahora.toLocaleTimeString();
   const reloj = document.getElementById('reloj');
-  if (reloj) {
-    reloj.textContent = hora;
-  }
-};
-
-/* ------------------ LocalStorage features (appended, no changes above) ------------------ */
-
-// Guardar el array 'coches' en localStorage bajo la clave 'coches'
-function guardarDatos() {
-  try {
-    localStorage.setItem('coches', JSON.stringify(coches));
-  } catch (e) {
-    console.error('Error guardando en localStorage', e);
-  }
+  if (reloj) reloj.textContent = hora;
 }
 
-// Cargar 'coches' desde localStorage si existe
+// Guarda el array de coches en localStorage
+function guardarDatos() {
+  localStorage.setItem('coches', JSON.stringify(coches));
+}
+
+// Carga los coches guardados desde localStorage
 function cargarDatos() {
   const raw = localStorage.getItem('coches');
   if (!raw) return;
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) {
-      coches = parsed;
-      const contador = document.getElementById('contador');
-      if (contador) contador.textContent = coches.length;
-      // Mensaje sencillo de confirmación
-      try { window.alert('¡Datos cargados correctamente!'); } catch(e){}
-    }
-  } catch (e) {
-    console.error('Error parseando coches desde localStorage', e);
+  const parsed = JSON.parse(raw);
+  if (Array.isArray(parsed)) {
+    coches = parsed;
+    const contador = document.getElementById('contador');
+    if (contador) contador.textContent = coches.length;
+    window.alert('Data loaded successfully!');
   }
 }
 
-// Borrar datos: vacía array y limpia localStorage
+// Borra todos los datos de coches y localStorage
 function borrarDatos() {
   coches = [];
-  try {
-    localStorage.clear();
-  } catch (e) {
-    console.error('Error limpiando localStorage', e);
-  }
-  const contador = document.getElementById('contador'); if (contador) contador.textContent = 0;
-  try { window.alert('Datos borrados.'); } catch(e){}
+  localStorage.clear();
+  const contador = document.getElementById('contador');
+  if (contador) contador.textContent = 0;
+  window.alert('Data deleted');
 }
 
-// Crear botones dinámicamente (descargar / borrar) sin tocar el HTML original
+// Crea los botones para descargar y borrar datos del localStorage
 function crearBotonesLocalStorage() {
   const prueba = document.getElementById('prueba');
   if (!prueba) return;
 
-  // Descargar todo el localStorage
   const btnDesc = document.createElement('input');
   btnDesc.type = 'button';
   btnDesc.id = 'descargarLS';
-  btnDesc.value = 'Descargar LocalStorage';
+  btnDesc.value = 'Download Storage';
   prueba.parentNode.insertBefore(btnDesc, prueba.nextSibling);
 
-  // Borrar datos
   const btnBorrar = document.createElement('input');
   btnBorrar.type = 'button';
   btnBorrar.id = 'borrarLS';
-  btnBorrar.value = 'Borrar Datos';
+  btnBorrar.value = 'Clear Data';
   btnDesc.parentNode.insertBefore(btnBorrar, btnDesc.nextSibling);
 
-  // Handler de prueba: guarda el formulario en el array y en localStorage
   prueba.addEventListener('click', function() {
     const coche = capturarDatos();
     if (!coche) return;
     coches.push(coche);
     guardarDatos();
-    const contador = document.getElementById('contador'); if (contador) contador.textContent = coches.length;
-    try { window.alert('Formulario guardado en LocalStorage.'); } catch(e){}
+    const contador = document.getElementById('contador');
+    if (contador) contador.textContent = coches.length;
+    window.alert('Data saved to storage');
   });
 
-  // Descargar todo el localStorage (exportar como JSON)
   btnDesc.addEventListener('click', function() {
     const all = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      try {
-        all[key] = JSON.parse(localStorage.getItem(key));
-      } catch (e) {
-        all[key] = localStorage.getItem(key);
-      }
+      all[key] = JSON.parse(localStorage.getItem(key));
     }
     const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'localstorage_dump.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'localstorage_dump.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   });
 
-  // Borrar datos (confirma y borra todo)
   btnBorrar.addEventListener('click', function() {
-    if (confirm('¿Borrar todos los datos guardados en localStorage?')) {
+    if (confirm('Delete all saved data?')) {
       borrarDatos();
     }
   });
 }
 
-// Asegurar que cada vez que se pulse Add o Delete se guarden los datos
+// Añade persistencia automática al añadir o eliminar coches
 function hookAddDeletePersistence() {
   const btnAñadir = document.getElementById('btnAñadir');
   const btnEliminar = document.getElementById('btnEliminar');
   if (btnAñadir) {
-    // after original handler runs, guardar
     btnAñadir.addEventListener('click', function() {
       setTimeout(guardarDatos, 50);
     });
   }
   if (btnEliminar) {
-    // after original handler (which prompts and updates array), guardar
     btnEliminar.addEventListener('click', function() {
       setTimeout(guardarDatos, 200);
-      setTimeout(function() { const contador = document.getElementById('contador'); if (contador) contador.textContent = coches.length; }, 250);
+      setTimeout(function() {
+        const contador = document.getElementById('contador');
+        if (contador) contador.textContent = coches.length;
+      }, 250);
     });
   }
 }
 
-// Inicializar sólo las partes nuevas (no tocar nada anterior)
-document.addEventListener('DOMContentLoaded', function() {
-  try { cargarDatos(); } catch(e) { console.error(e); }
-  try { crearBotonesLocalStorage(); } catch(e) { console.error(e); }
-  try { hookAddDeletePersistence(); } catch(e) { console.error(e); }
-});
-
-// Mantener el id del intervalo en una variable global para poder pararlo
 let intervalo = null;
-// Obtener referencia al botón que alternará entre parar/continuar
+let clockColor = 'black';
+let isClockRunning = true;
 
-const botonParar = document.getElementById('parar');
-
-// Iniciar el reloj y guardar el id del intervalo para poder cancelarlo
-intervalo = setInterval(mostrarHora, 1000);
-
-// Handler que alterna entre parar y continuar el reloj
-if (botonParar) {
-  botonParar.onclick = function() {
-    if (intervalo) {
-      clearInterval(intervalo);
-      intervalo = null;
-     
-      window.alert('Reloj parado');
-    } else {
-      intervalo = setInterval(mostrarHora, 1000);
-      
-      window.alert('Reloj iniciado');
-    }
-  };
+// Guarda el color del reloj en localStorage
+function saveClockColor(color) {
+  localStorage.setItem('clockColor', color);
 }
 
-document.getElementById('prueba').onclick = function() {
-  localStorage.setItem('coches', 'el bmw');
-  localStorage.setItem('anio', '2020');
-  localStorage.setItem('combustible', 'gasolina');
-  localStorage.setItem('itv', 'true'); 
-  localStorage.setItem('marca', 'Toyota');  
-  localStorage.setItem('categoria', 'SUV'); 
-  localStorage.setItem('precio', '30000');
-  localStorage.setItem('color', 'rojo'); 
-  localStorage.setItem('km', '15000');
-  localStorage.setItem('dueño', 'Juan Perez');  
-  localStorage.setItem('matricula', '1234ABC');
-  localStorage.setItem('modelo', '2020X');
-  localStorage.setItem('potencia', '150CV');
-  localStorage.setItem('JSON', JSON.stringify({marca: 'Ford', anio: 2018, combustible: 'diesel', itv: false}));
-  window.alert('Datos guardados en localStorage');
+// Carga el color del reloj desde localStorage
+function loadClockColor() {
+  const saved = localStorage.getItem('clockColor');
+  if (saved) {
+    clockColor = saved;
+    return saved;
+  }
+  return null;
+}
 
-  const jsonStr = localStorage.getItem('JSON');
-  if (jsonStr) {
-    try {
-      const parsed = JSON.parse(jsonStr);
-      window.alert(parsed.combustible);
-    } catch (e) {
-      window.alert('Invalid JSON in localStorage');
-    }
-  } else {
-    window.alert('No JSON stored under key JSON');
+// Borra el color guardado del reloj
+function clearClockColor() {
+  localStorage.removeItem('clockColor');
+  clockColor = 'black';
+}
+
+// Aplica el color seleccionado al reloj y lo guarda
+function applyClockColor(color) {
+  const reloj = document.getElementById('reloj');
+  if (reloj && color) {
+    reloj.style.color = color;
+    clockColor = color;
+    saveClockColor(color);
   }
 }
+
+// Alterna entre parar y continuar el reloj
+function toggleClock() {
+  const botonParar = document.getElementById('parar');
+  const estadoReloj = document.getElementById('estadoReloj');
+  if (isClockRunning) {
+    if (intervalo) clearInterval(intervalo);
+    intervalo = null;
+    isClockRunning = false;
+    if (botonParar) botonParar.value = 'Continue';
+    if (estadoReloj) {
+      estadoReloj.textContent = '⏸ Clock stopped';
+      estadoReloj.style.color = 'red';
+    }
+    window.alert('Clock stopped');
+  } else {
+    mostrarHora();
+    intervalo = setInterval(mostrarHora, 1000);
+    isClockRunning = true;
+    if (botonParar) botonParar.value = 'Stop';
+    if (estadoReloj) {
+      estadoReloj.textContent = '▶ Clock running';
+      estadoReloj.style.color = 'green';
+    }
+    window.alert('Clock started');
+  }
+}
+
+intervalo = setInterval(mostrarHora, 1000);
+
+document.addEventListener('DOMContentLoaded', function() {
+  cargarDatos();
+  crearBotonesLocalStorage();
+  hookAddDeletePersistence();
+
+  const savedColor = loadClockColor();
+  if (savedColor) applyClockColor(savedColor);
+
+  const selectColor = document.getElementById('colorReloj');
+  if (selectColor && savedColor) selectColor.value = savedColor;
+
+  if (selectColor) {
+    selectColor.addEventListener('change', function() {
+      const newColor = this.value;
+      if (newColor) {
+        applyClockColor(newColor);
+        window.alert('Clock color updated to: ' + newColor);
+      }
+    });
+  }
+
+  const botonParar = document.getElementById('parar');
+  if (botonParar) {
+    botonParar.onclick = toggleClock;
+    const estadoReloj = document.getElementById('estadoReloj');
+    if (estadoReloj) {
+      estadoReloj.textContent = '▶ Clock running';
+      estadoReloj.style.color = 'green';
+    }
+  }
+
+  window.alert('Clock loaded successfully!');
+});
 
 
