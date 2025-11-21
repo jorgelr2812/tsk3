@@ -150,13 +150,13 @@ function crearBotonesLocalStorage() {
   btnDesc.type = 'button';
   btnDesc.id = 'descargarLS';
   btnDesc.value = 'Download Storage';
-  prueba.parentNode.insertBefore(btnDesc, prueba.nextSibling);
+  prueba.parentNode.appendChild(btnDesc);
 
   const btnBorrar = document.createElement('input');
   btnBorrar.type = 'button';
   btnBorrar.id = 'borrarLS';
   btnBorrar.value = 'Clear Data';
-  btnDesc.parentNode.insertBefore(btnBorrar, btnDesc.nextSibling);
+  prueba.parentNode.appendChild(btnBorrar);
 
   prueba.addEventListener('click', function() {
     const coche = capturarDatos();
