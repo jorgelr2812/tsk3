@@ -127,4 +127,38 @@ button:hover {
   font-weight: 600;
   font-size: 1rem;
 }
+
+/* Table styles moved here (no inline CSS in HTML/JS) */
+.section-title {
+  text-align: center;
+  margin-top: 20px;
+  color: #ff6b35;
+  font-size: 1.3rem;
+}
+.table-container {
+  width: 90%;
+  max-width: 900px;
+  margin: 10px auto 30px;
+}
+.cars-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.cars-table th {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #444;
+  color: #ffd9c6;
+}
+.cars-table td {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  color: #e0e0e0;
+}
+.cars-table tbody tr:nth-child(even) {
+  background: rgba(255,255,255,0.02);
+}
+.table-cell {
+  padding: 8px;
+}
    

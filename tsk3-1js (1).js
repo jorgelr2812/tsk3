@@ -1,6 +1,131 @@
-// Array principal para almacenar los coches
+//Variables globales
 let coches = [];
+let formCoche;
+let inputMarca;
+let inputAnio;
+let selectCategoria;
+let inputItv;
+let contador;
+let relojEl;
+let botonParar;
+let btnPrueba;
+let btnDesc;
+let btnBorrar;
+let btnAñadir;
+let btnMostrar;
+let btnEliminar;
+let btnFinalizar;
+let selectColor;
+let estadoReloj;
+let tablaCochesEl;
+let tablaCuerpo;
+let intervalo = null;
+let clockColor = 'black';
+let isClockRunning = true;
 
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  
+  formCoche = document.getElementById('formCoche');
+  inputMarca = document.getElementById('marca');
+  inputAnio = document.getElementById('anio');
+  selectCategoria = document.getElementById('categoria');
+  inputItv = document.getElementById('itv');
+  contador = document.getElementById('contador');
+  relojEl = document.getElementById('reloj');
+  botonParar = document.getElementById('parar');
+  btnPrueba = document.getElementById('prueba');
+  btnAñadir = document.getElementById('btnAñadir');
+  btnMostrar = document.getElementById('btnMostrar');
+  btnEliminar = document.getElementById('btnEliminar');
+  btnFinalizar = document.getElementById('btnFinalizar');
+  selectColor = document.getElementById('colorReloj');
+  estadoReloj = document.getElementById('estadoReloj');
+  tablaCochesEl = document.getElementById('tablaCoches');
+  if (tablaCochesEl) tablaCuerpo = tablaCochesEl.querySelector('tbody');
+
+  if (btnAñadir) btnAñadir.onclick = function() { const coche = capturarDatos(); if (coche) añadirCoche(coche); };
+  if (btnMostrar) btnMostrar.onclick = mostrarCoches;
+  if (btnEliminar) btnEliminar.onclick = eliminarCoche;
+  if (btnFinalizar) btnFinalizar.onclick = finalizar;
+
+  cargarDatos();
+  crearBotonesLocalStorage();
+  hookAddDeletePersistence();
+
+  const savedColor = loadClockColor();
+  if (savedColor) applyClockColor(savedColor);
+  if (selectColor && savedColor) selectColor.value = savedColor;
+  if (selectColor) {
+    selectColor.addEventListener('change', function() {
+      const newColor = this.value;
+      if (newColor) {
+        applyClockColor(newColor);
+        window.alert('Clock color updated to: ' + newColor);
+      }
+    });
+  }
+
+  if (botonParar) botonParar.onclick = toggleClock;
+  if (estadoReloj) {
+    estadoReloj.textContent = '▶ Clock running';
+    estadoReloj.style.color = 'green';
+  }
+
+  window.alert('Clock loaded successfully!');
+  mostrarTabla();
+});
+// Crea los botones para descargar y borrar datos del localStorage
+function crearBotonesLocalStorage() {
+  btnPrueba = document.getElementById('prueba');
+  if (!btnPrueba) return;
+
+  btnDesc = document.createElement('input');
+  btnDesc.type = 'button';
+  btnDesc.id = 'descargarLS';
+  btnDesc.value = 'Download Storage';
+  btnPrueba.parentNode.appendChild(btnDesc);
+
+  btnBorrar = document.createElement('input');
+  btnBorrar.type = 'button';
+  btnBorrar.id = 'borrarLS';
+  btnBorrar.value = 'Clear Data';
+  btnPrueba.parentNode.appendChild(btnBorrar);
+
+  btnPrueba.addEventListener('click', function() {
+    const coche = capturarDatos();
+    if (!coche) return;
+    coches.push(coche);
+    guardarDatos();
+    if (contador) contador.textContent = coches.length;
+    window.alert('Data saved to storage');
+    mostrarTabla();
+  });
+
+  btnDesc.addEventListener('click', function() {
+    const all = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      all[key] = JSON.parse(localStorage.getItem(key));
+    }
+    const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'localstorage_dump.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  btnBorrar.addEventListener('click', function() {
+    if (confirm('Delete all saved data?')) {
+      borrarDatos();
+    }
+  });
+}
 // Captura y valida los datos del formulario
 function capturarDatos() {
   let marca = document.getElementById("marca").value.trim();
@@ -39,9 +164,10 @@ function añadirCoche(coche) {
     }
   }
   coches.push(coche);
-  document.getElementById("contador").textContent = coches.length;
+  if (contador) contador.textContent = coches.length;
   alert("Car added successfully.");
-  document.getElementById("formCoche").reset();
+  if (formCoche) formCoche.reset();
+  mostrarTabla();
 }
 
 // Elimina un coche del array según la marca introducida
@@ -65,8 +191,9 @@ function eliminarCoche() {
     alert("No car found with that brand.");
   } else {
     coches = nuevoCoches;
-    document.getElementById("contador").textContent = coches.length;
+    if (contador) contador.textContent = coches.length;
     alert("Car deleted successfully.");
+    mostrarTabla();
   }
 }
 
@@ -84,6 +211,34 @@ function mostrarCoches() {
   alert(texto);
 }
 
+// Muestra el array coches en tabla HTML
+function mostrarTabla() {
+  if (!tablaCochesEl) return;
+  if (!tablaCuerpo) tablaCuerpo = tablaCochesEl.querySelector('tbody');
+  if (!tablaCuerpo) return;
+  tablaCuerpo.innerHTML = '';
+  for (let i = 0; i < coches.length; i++) {
+    const c = coches[i];
+    const tr = document.createElement('tr');
+    // crear celdas sin usar innerHTML ni estilos inline
+    const cells = [
+      (i + 1),
+      c.marca,
+      c.anio,
+      c.categoria,
+      c.combustible,
+      c.itv ? 'Yes' : 'No'
+    ];
+    for (let j = 0; j < cells.length; j++) {
+      const td = document.createElement('td');
+      td.className = 'table-cell';
+      td.textContent = cells[j];
+      tr.appendChild(td);
+    }
+    tablaCuerpo.appendChild(tr);
+  }
+}
+
 // Muestra la lista final de coches ordenados por año
 function finalizar() {
   if (coches.length === 0) {
@@ -98,20 +253,17 @@ function finalizar() {
   alert(texto);
 }
 
-document.getElementById("btnAñadir").onclick = () => {
-  const coche = capturarDatos();
-  if (coche) añadirCoche(coche);
-};
-document.getElementById("btnMostrar").onclick = mostrarCoches;
-document.getElementById("btnEliminar").onclick = eliminarCoche;
-document.getElementById("btnFinalizar").onclick = finalizar;
 
 // Muestra la hora actual en el elemento del reloj
 function mostrarHora() {
   const ahora = new Date();
   const hora = ahora.toLocaleTimeString();
-  const reloj = document.getElementById('reloj');
-  if (reloj) reloj.textContent = hora;
+  if (relojEl) {
+    relojEl.textContent = hora;
+  } else {
+    const reloj = document.getElementById('reloj');
+    if (reloj) reloj.textContent = hora;
+  }
 }
 
 // Guarda el array de coches en localStorage
@@ -126,9 +278,9 @@ function cargarDatos() {
   const parsed = JSON.parse(raw);
   if (Array.isArray(parsed)) {
     coches = parsed;
-    const contador = document.getElementById('contador');
     if (contador) contador.textContent = coches.length;
     window.alert('Data loaded successfully!');
+    mostrarTabla();
   }
 }
 
@@ -136,66 +288,15 @@ function cargarDatos() {
 function borrarDatos() {
   coches = [];
   localStorage.clear();
-  const contador = document.getElementById('contador');
   if (contador) contador.textContent = 0;
   window.alert('Data deleted');
+  mostrarTabla();
 }
 
-// Crea los botones para descargar y borrar datos del localStorage
-function crearBotonesLocalStorage() {
-  const prueba = document.getElementById('prueba');
-  if (!prueba) return;
 
-  const btnDesc = document.createElement('input');
-  btnDesc.type = 'button';
-  btnDesc.id = 'descargarLS';
-  btnDesc.value = 'Download Storage';
-  prueba.parentNode.appendChild(btnDesc);
-
-  const btnBorrar = document.createElement('input');
-  btnBorrar.type = 'button';
-  btnBorrar.id = 'borrarLS';
-  btnBorrar.value = 'Clear Data';
-  prueba.parentNode.appendChild(btnBorrar);
-
-  prueba.addEventListener('click', function() {
-    const coche = capturarDatos();
-    if (!coche) return;
-    coches.push(coche);
-    guardarDatos();
-    const contador = document.getElementById('contador');
-    if (contador) contador.textContent = coches.length;
-    window.alert('Data saved to storage');
-  });
-
-  btnDesc.addEventListener('click', function() {
-    const all = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      all[key] = JSON.parse(localStorage.getItem(key));
-    }
-    const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'localstorage_dump.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  });
-
-  btnBorrar.addEventListener('click', function() {
-    if (confirm('Delete all saved data?')) {
-      borrarDatos();
-    }
-  });
-}
 
 // Añade persistencia automática al añadir o eliminar coches
 function hookAddDeletePersistence() {
-  const btnAñadir = document.getElementById('btnAñadir');
-  const btnEliminar = document.getElementById('btnEliminar');
   if (btnAñadir) {
     btnAñadir.addEventListener('click', function() {
       setTimeout(guardarDatos, 50);
@@ -205,16 +306,11 @@ function hookAddDeletePersistence() {
     btnEliminar.addEventListener('click', function() {
       setTimeout(guardarDatos, 200);
       setTimeout(function() {
-        const contador = document.getElementById('contador');
         if (contador) contador.textContent = coches.length;
       }, 250);
     });
   }
 }
-
-let intervalo = null;
-let clockColor = 'black';
-let isClockRunning = true;
 
 // Guarda el color del reloj en localStorage
 function saveClockColor(color) {
@@ -239,9 +335,9 @@ function clearClockColor() {
 
 // Aplica el color seleccionado al reloj y lo guarda
 function applyClockColor(color) {
-  const reloj = document.getElementById('reloj');
-  if (reloj && color) {
-    reloj.style.color = color;
+  const target = relojEl || document.getElementById('reloj');
+  if (target && color) {
+    target.style.color = color;
     clockColor = color;
     saveClockColor(color);
   }
@@ -249,8 +345,6 @@ function applyClockColor(color) {
 
 // Alterna entre parar y continuar el reloj
 function toggleClock() {
-  const botonParar = document.getElementById('parar');
-  const estadoReloj = document.getElementById('estadoReloj');
   if (isClockRunning) {
     if (intervalo) clearInterval(intervalo);
     intervalo = null;
@@ -276,38 +370,6 @@ function toggleClock() {
 
 intervalo = setInterval(mostrarHora, 1000);
 
-document.addEventListener('DOMContentLoaded', function() {
-  cargarDatos();
-  crearBotonesLocalStorage();
-  hookAddDeletePersistence();
 
-  const savedColor = loadClockColor();
-  if (savedColor) applyClockColor(savedColor);
-
-  const selectColor = document.getElementById('colorReloj');
-  if (selectColor && savedColor) selectColor.value = savedColor;
-
-  if (selectColor) {
-    selectColor.addEventListener('change', function() {
-      const newColor = this.value;
-      if (newColor) {
-        applyClockColor(newColor);
-        window.alert('Clock color updated to: ' + newColor);
-      }
-    });
-  }
-
-  const botonParar = document.getElementById('parar');
-  if (botonParar) {
-    botonParar.onclick = toggleClock;
-    const estadoReloj = document.getElementById('estadoReloj');
-    if (estadoReloj) {
-      estadoReloj.textContent = '▶ Clock running';
-      estadoReloj.style.color = 'green';
-    }
-  }
-
-  window.alert('Clock loaded successfully!');
-});
 
 
